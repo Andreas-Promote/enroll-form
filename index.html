@@ -13,8 +13,6 @@
       --ink: #1a1a2e;
       --ink-soft: #4a4a6a;
       --accent: #5c4be8;
-      --accent-light: #ede9ff;
-      --success: #0f9b6e;
       --error: #d63c3c;
       --border: #ddd8f5;
       --bg: #f7f6ff;
@@ -217,6 +215,12 @@
       <span class="field-error" id="emailError">Ange en giltig e-postadress</span>
     </div>
 
+    <div class="field">
+      <label for="code">Registreringskod</label>
+      <input type="text" id="code" placeholder="Ange din kod" autocomplete="off" />
+      <span class="field-error" id="codeError">Obligatoriskt fält</span>
+    </div>
+
     <!-- Honeypot: dolt för riktiga användare, robotar fyller i det -->
     <div class="website-field" aria-hidden="true">
       <label for="website">Webbplats</label>
@@ -241,6 +245,7 @@
       const firstName = document.getElementById('firstName').value.trim();
       const lastName  = document.getElementById('lastName').value.trim();
       const email     = document.getElementById('email').value.trim();
+      const code      = document.getElementById('code').value.trim();
 
       setFieldError('firstName', !firstName);
       setFieldError('lastName',  !lastName);
@@ -248,7 +253,9 @@
       const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       setFieldError('email', !emailOk);
 
-      if (!firstName || !lastName || !emailOk) valid = false;
+      setFieldError('code', !code);
+
+      if (!firstName || !lastName || !emailOk || !code) valid = false;
       return valid;
     }
 
@@ -273,7 +280,7 @@
       document.getElementById('globalError').classList.remove('visible');
     }
 
-    ['firstName','lastName','email'].forEach(id => {
+    ['firstName','lastName','email','code'].forEach(id => {
       document.getElementById(id).addEventListener('input', () => {
         setFieldError(id, false);
         hideError();
@@ -284,7 +291,7 @@
       hideError();
       if (!validate()) return;
 
-      // Honeypot-kontroll — om det här fältet är ifyllt är det en robot
+      // Honeypot-kontroll
       if (document.getElementById('website').value) {
         return;
       }
@@ -295,6 +302,7 @@
         first_name: document.getElementById('firstName').value.trim(),
         last_name:  document.getElementById('lastName').value.trim(),
         email:      document.getElementById('email').value.trim(),
+        code:       document.getElementById('code').value.trim().toLowerCase(),
         website:    '',
       };
 
