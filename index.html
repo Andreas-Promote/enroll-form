@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Program Enrollment</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #1a1a2e;
+      --ink-soft: #4a4a6a;
+      --accent: #5c4be8;
+      --accent-light: #ede9ff;
+      --success: #0f9b6e;
+      --error: #d63c3c;
+      --border: #ddd8f5;
+      --bg: #f7f6ff;
+      --white: #ffffff;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 3rem 2.5rem;
+      width: 100%;
+      max-width: 460px;
+      box-shadow: 0 4px 40px rgba(92, 75, 232, 0.1);
+      border: 1px solid var(--border);
+    }
+
+    .card-header { margin-bottom: 2.2rem; }
+
+    .eyebrow {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.9rem;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+      color: var(--ink-soft);
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
+    .field { margin-bottom: 1.2rem; }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.01em;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--ink);
+      background: var(--white);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(92, 75, 232, 0.12);
+    }
+
+    input.error-field { border-color: var(--error); }
+
+    .field-error {
+      font-size: 0.78rem;
+      color: var(--error);
+      margin-top: 0.3rem;
+      display: none;
+    }
+
+    .field-error.visible { display: block; }
+
+    .name-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 0.9rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    button[type="submit"]:hover:not(:disabled) {
+      background: #4a3bd4;
+      box-shadow: 0 4px 16px rgba(92, 75, 232, 0.3);
+    }
+
+    button[type="submit"]:active:not(:disabled) { transform: scale(0.99); }
+    button[type="submit"]:disabled { opacity: 0.7; cursor: not-allowed; }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    .spinner.visible { display: block; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .alert {
+      padding: 0.85rem 1rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      margin-bottom: 1.2rem;
+      display: none;
+    }
+
+    .alert.visible { display: block; }
+    .alert-error { background: #fef2f2; color: var(--error); border: 1px solid #fecaca; }
+
+    .privacy {
+      margin-top: 1.2rem;
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+      text-align: center;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="card-header">
+      <p class="eyebrow">Get started</p>
+      <h1>Join the program</h1>
+      <p class="subtitle">Fill in your details below and we'll create your account and enroll you right away.</p>
+    </div>
+
+    <div class="alert alert-error" id="globalError"></div>
+
+    <div class="name-row">
+      <div class="field">
+        <label for="firstName">First name</label>
+        <input type="text" id="firstName" placeholder="Anna" autocomplete="given-name" />
+        <span class="field-error" id="firstNameError">Required</span>
+      </div>
+      <div class="field">
+        <label for="lastName">Last name</label>
+        <input type="text" id="lastName" placeholder="Lindqvist" autocomplete="family-name" />
+        <span class="field-error" id="lastNameError">Required</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="email">Work email</label>
+      <input type="email" id="email" placeholder="anna@company.com" autocomplete="email" />
+      <span class="field-error" id="emailError">Please enter a valid email address</span>
+    </div>
+
+    <button type="submit" id="submitBtn" onclick="handleSubmit()">
+      <span id="btnText">Enroll me</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+
+    <p class="privacy">Your information is used only to create your learning account.</p>
+  </div>
+
+  <script>
+    // ─── CONFIGURATION ──────────────────────────────────────────────────────────
+    // Paste your Make webhook URL here after setting up the scenario
+    const MAKE_WEBHOOK_URL = 'https://hook.eu1.make.com/vb5f57lir7ql6otvxr011wd9fmnrp8bu' ;
+    // ───────────────────────────────────────────────────────────────────────────
+
+    function validate() {
+      let valid = true;
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName  = document.getElementById('lastName').value.trim();
+      const email     = document.getElementById('email').value.trim();
+
+      setFieldError('firstName', !firstName);
+      setFieldError('lastName',  !lastName);
+
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      setFieldError('email', !emailOk);
+
+      if (!firstName || !lastName || !emailOk) valid = false;
+      return valid;
+    }
+
+    function setFieldError(field, hasError) {
+      document.getElementById(field).classList.toggle('error-field', hasError);
+      document.getElementById(field + 'Error').classList.toggle('visible', hasError);
+    }
+
+    function setLoading(loading) {
+      document.getElementById('submitBtn').disabled = loading;
+      document.getElementById('btnText').textContent = loading ? 'Enrolling…' : 'Enroll me';
+      document.getElementById('spinner').classList.toggle('visible', loading);
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('globalError');
+      el.textContent = msg;
+      el.classList.add('visible');
+    }
+
+    function hideError() {
+      document.getElementById('globalError').classList.remove('visible');
+    }
+
+    ['firstName','lastName','email'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => {
+        setFieldError(id, false);
+        hideError();
+      });
+    });
+
+    async function handleSubmit() {
+      hideError();
+      if (!validate()) return;
+
+      setLoading(true);
+
+      const payload = {
+        first_name: document.getElementById('firstName').value.trim(),
+        last_name:  document.getElementById('lastName').value.trim(),
+        email:      document.getElementById('email').value.trim(),
+      };
+
+      try {
+        const res = await fetch(MAKE_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || data.error) {
+          throw new Error(data.error || 'Something went wrong. Please try again.');
+        }
+
+        if (data.redirect_url) {
+          window.location.href = data.redirect_url;
+        }
+
+      } catch (err) {
+        showError(err.message);
+        setLoading(false);
+      }
+    }
+  </script>
+</body>
+</html>
