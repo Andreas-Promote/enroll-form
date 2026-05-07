@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Program Enrollment</title>
+  <title>Anmälan till program</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
 
@@ -114,6 +114,18 @@
       gap: 0.8rem;
     }
 
+    /* Honeypot — dolt för riktiga användare */
+    .website-field {
+      opacity: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 0;
+      width: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+
     button[type="submit"] {
       width: 100%;
       padding: 0.9rem;
@@ -179,44 +191,49 @@
 <body>
   <div class="card">
     <div class="card-header">
-      <p class="eyebrow">Get started</p>
-      <h1>Join the program</h1>
-      <p class="subtitle">Fill in your details below and we'll create your account and enroll you right away.</p>
+      <p class="eyebrow">Kom igång</p>
+      <h1>Anmäl dig till programmet</h1>
+      <p class="subtitle">Fyll i dina uppgifter nedan så skapar vi ditt konto och anmäler dig direkt.</p>
     </div>
 
     <div class="alert alert-error" id="globalError"></div>
 
     <div class="name-row">
       <div class="field">
-        <label for="firstName">First name</label>
+        <label for="firstName">Förnamn</label>
         <input type="text" id="firstName" placeholder="Anna" autocomplete="given-name" />
-        <span class="field-error" id="firstNameError">Required</span>
+        <span class="field-error" id="firstNameError">Obligatoriskt fält</span>
       </div>
       <div class="field">
-        <label for="lastName">Last name</label>
+        <label for="lastName">Efternamn</label>
         <input type="text" id="lastName" placeholder="Lindqvist" autocomplete="family-name" />
-        <span class="field-error" id="lastNameError">Required</span>
+        <span class="field-error" id="lastNameError">Obligatoriskt fält</span>
       </div>
     </div>
 
     <div class="field">
-      <label for="email">Work email</label>
-      <input type="email" id="email" placeholder="anna@company.com" autocomplete="email" />
-      <span class="field-error" id="emailError">Please enter a valid email address</span>
+      <label for="email">E-postadress</label>
+      <input type="email" id="email" placeholder="anna@foretag.se" autocomplete="email" />
+      <span class="field-error" id="emailError">Ange en giltig e-postadress</span>
+    </div>
+
+    <!-- Honeypot: dolt för riktiga användare, robotar fyller i det -->
+    <div class="website-field" aria-hidden="true">
+      <label for="website">Webbplats</label>
+      <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
     </div>
 
     <button type="submit" id="submitBtn" onclick="handleSubmit()">
-      <span id="btnText">Enroll me</span>
+      <span id="btnText">Anmäl mig</span>
       <div class="spinner" id="spinner"></div>
     </button>
 
-    <p class="privacy">Your information is used only to create your learning account.</p>
+    <p class="privacy">Dina uppgifter används enbart för att skapa ditt inlärningskonto.</p>
   </div>
 
   <script>
-    // ─── CONFIGURATION ──────────────────────────────────────────────────────────
-    // Paste your Make webhook URL here after setting up the scenario
-    const MAKE_WEBHOOK_URL = 'https://hook.eu1.make.com/vb5f57lir7ql6otvxr011wd9fmnrp8bu' ;
+    // ─── KONFIGURATION ──────────────────────────────────────────────────────────
+    const MAKE_WEBHOOK_URL = 'https://hook.eu1.make.com/REPLACE_WITH_YOUR_WEBHOOK_ID';
     // ───────────────────────────────────────────────────────────────────────────
 
     function validate() {
@@ -242,7 +259,7 @@
 
     function setLoading(loading) {
       document.getElementById('submitBtn').disabled = loading;
-      document.getElementById('btnText').textContent = loading ? 'Enrolling…' : 'Enroll me';
+      document.getElementById('btnText').textContent = loading ? 'Anmäler…' : 'Anmäl mig';
       document.getElementById('spinner').classList.toggle('visible', loading);
     }
 
@@ -267,12 +284,18 @@
       hideError();
       if (!validate()) return;
 
+      // Honeypot-kontroll — om det här fältet är ifyllt är det en robot
+      if (document.getElementById('website').value) {
+        return;
+      }
+
       setLoading(true);
 
       const payload = {
         first_name: document.getElementById('firstName').value.trim(),
         last_name:  document.getElementById('lastName').value.trim(),
         email:      document.getElementById('email').value.trim(),
+        website:    '',
       };
 
       try {
@@ -285,7 +308,7 @@
         const data = await res.json();
 
         if (!res.ok || data.error) {
-          throw new Error(data.error || 'Something went wrong. Please try again.');
+          throw new Error(data.error || 'Något gick fel. Försök igen.');
         }
 
         if (data.redirect_url) {
