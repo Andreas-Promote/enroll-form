@@ -112,7 +112,6 @@
       gap: 0.8rem;
     }
 
-    /* Honeypot — dolt för riktiga användare */
     .website-field {
       opacity: 0;
       position: absolute;
@@ -221,7 +220,6 @@
       <span class="field-error" id="codeError">Obligatoriskt fält</span>
     </div>
 
-    <!-- Honeypot: dolt för riktiga användare, robotar fyller i det -->
     <div class="website-field" aria-hidden="true">
       <label for="website">Webbplats</label>
       <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
@@ -291,7 +289,6 @@
       hideError();
       if (!validate()) return;
 
-      // Honeypot-kontroll
       if (document.getElementById('website').value) {
         return;
       }
@@ -313,15 +310,24 @@
           body: JSON.stringify(payload),
         });
 
-        const data = await res.json();
+        // Read as text first, then try to parse as JSON
+        const text = await res.text();
+        let data = {};
+        try { data = JSON.parse(text); } catch (e) { /* not JSON */ }
 
-        if (!res.ok || data.error) {
-          throw new Error(data.error || 'Något gick fel. Försök igen.');
+        // If we got a specific error back, show it
+        if (data.error) {
+          throw new Error(data.error);
         }
 
+        // If we got a redirect URL, go there
         if (data.redirect_url) {
           window.location.href = data.redirect_url;
+          return;
         }
+
+        // Anything else (including Make's default "Accepted") means invalid code
+        throw new Error('Ogiltig registreringskod');
 
       } catch (err) {
         showError(err.message);
